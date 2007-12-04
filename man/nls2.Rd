@@ -31,6 +31,15 @@ nls2(formula, data = parent.frame(), start, control = nls.control(),
   row and then return the \code{nls} object corresponding to the one
   with least residual sum of squares.  The \code{"brute-force"} algorithm
   just returns the nls object corresponding to the starting values.
+
+  By using \code{algorithm="brute-force"} and a data frame of starting
+  values one can get a brute force solution.  This can then be fed into
+  a subsequent invocation of \code{nls2} (or \code{nls}) as starting
+  values.
+
+  By using a data frame of starting values one can perform mulitple
+  optimizations in one call returning the best one (or all of them
+  if \code{all = TRUE}.
 }
 \seealso{
   \code{\link{nls}}.
@@ -57,8 +66,10 @@ area <- c(26.22,20.45,128.68,117.24,19.61,295.21,31.83,30.36,13.57,60.47,
 st <- expand.grid(Const = seq(-100, 100, 25), B = seq(-100, 100, 25), 
 	A = seq(-1, 1, .25))
 fo <- richness ~ Const + B * (area ^ A)
+# use brute force to select best row in st
 mod0 <- nls2(fo, st = st, algorithm = "brute-force")
 mod0
+# now use mod0 as starting value for optimization
 nls2(fo, st = coef(mod0)) 
 
 }
