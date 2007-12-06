@@ -14,8 +14,12 @@ nls2(formula, data = parent.frame(), start, control = nls.control(),
   \item{formula}{same as \code{formula} parameter in \code{nls}.}
   \item{data}{same as \code{data} parameter in \code{nls}.}
   \item{start}{same as \code{start} parameter in \code{nls} except that
-    it may alternately be a data frame in which case an optimization will
-    be run with the starting value for each row successively.}
+    it may alternately be (1) a two row data frame in which case \code{nls2}
+    will start at each point on a grid chosen to have maxiter iterations
+    (2) a data frame with more than two rows in which case an optimization will
+    be run with the starting value for each row successively or (3) it 
+    may be an \code{nls} object in which case the \code{coef} of the object will
+    be used as the starting value.}
   \item{control}{same as \code{control} parameter in \code{nls}.}
   \item{algorithm}{same as \code{algorithm} parameter in \code{nls}
     with the addition of the \code{"brute-force"} method.}
@@ -25,21 +29,19 @@ nls2(formula, data = parent.frame(), start, control = nls.control(),
     with least residual sum of squares is returned.}
 }
 \details{
-  Similar to \code{nls} except that \code{start} may be a data frame
-  whose rows are starting values.  If \code{all} is false (the default)
-  it will run \code{nls} from the starting values defined by each
-  row and then return the \code{nls} object corresponding to the one
-  with least residual sum of squares.  The \code{"brute-force"} algorithm
-  just returns the nls object corresponding to the starting values.
-
-  By using \code{algorithm="brute-force"} and a data frame of starting
-  values one can get a brute force solution.  This can then be fed into
-  a subsequent invocation of \code{nls2} (or \code{nls}) as starting
-  values.
+  Similar to \code{nls} except that \code{start} and \code{algorithm}
+  have expanded values as indicated.
 
   By using a data frame of starting values one can perform mulitple
   optimizations in one call returning the best one (or all of them
-  if \code{all = TRUE}.
+  if \code{all = TRUE}).
+
+  The \code{"brute-force"} algorithm
+  just returns the nls object corresponding to the starting values.
+  By using \code{algorithm="brute-force"} and a data frame of starting
+  values one can get a brute force solution.  This can then be fed as
+  starting values into a subsequent invocation of \code{nls2} 
+  (or \code{nls}).
 }
 \seealso{
   \code{\link{nls}}.
@@ -63,14 +65,32 @@ area <- c(26.22,20.45,128.68,117.24,19.61,295.21,31.83,30.36,13.57,60.47,
 75.19,54.39,79.88,63.84,82.24,88.23,202.66,148.93,641.76,20.45,145.31,
 27.52,30.70)
 
-st <- expand.grid(Const = seq(-100, 100, 25), B = seq(-100, 100, 25), 
-	A = seq(-1, 1, .25))
+## Example 1
+
 fo <- richness ~ Const + B * (area ^ A)
 # use brute force to select best row in st
-mod0 <- nls2(fo, st = st, algorithm = "brute-force")
+
+# pass our own set of starting values
+st0 <- expand.grid(Const = seq(-100, 100, len = 4), 
+	B = seq(-100, 100, len = 4), A = seq(-1, 1, len = 4))
+mod0 <- nls2(fo, start = st0, algorithm = "brute-force")
 mod0
 # now use mod0 as starting value for optimization
-nls2(fo, st = coef(mod0)) 
+nls2(fo, start = mod0) 
+
+## Example 2
+
+# pass a 2-row data frame and let nls2 calculate grid
+st1 <- data.frame(Const = c(-100, 100), B = c(-100, 100), A = c(-1, 1))
+mod1 <- nls2(fo, start = st1, algorithm = "brute-force")
+mod1
+nls2(fo, start = mod1)
+
+## Example 3
+
+# create same grid of starting values as in Example 2
+# running an optimization from each one and picking the best
+nls2(fo, start = st1, control = nls.control(warnOnly = TRUE))
 
 }
 \keyword{nonlinear}

@@ -1,8 +1,22 @@
+VERSION 0.1-3
+
+o fixed problem with update not working with objects produced by nls2.
+
+o fixed number of iterations and tolerance displayed when using
+  algorithm = "brute-force".
+
+o if there are exactly two rows in start= then a grid of starting values
+  is formed so that there are at least maxiter points on the grid.
+
+VERSION 0.1-2
+
+o start can be an nls object in which case coef(nls) is used.
+
 VERSION 0.1-1
 
-o documentation and DESCRIPTION file tweaks
+o documentation and DESCRIPTION file tweaks.
 
 VERSION 0.1-0
 
-o initial release
+o initial release.
 

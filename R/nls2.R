@@ -4,9 +4,14 @@ nls2 <- function(formula, data = parent.frame(), start, control = nls.control(),
 	all = FALSE) { 
 
 	L <- (list(formula = formula, data = data, control = control))
-	if (!missing(start)) L$start <- start
+	if (!missing(start)) { 
+		if (inherits(start, "nls")) start <- coef(start)
+		L$start <- start
+	}
+	finIter <- NROW(L$start)
 	L <- append(L, list(...))
 	algorithm <- match.arg(algorithm)
+	call <- match.call()
 	if (algorithm == "brute-force") {
 	   nls <- function(formula, data, start, ...) {
 	      nlsModel <- stats:::nlsModel
@@ -18,9 +23,9 @@ nls2 <- function(formula, data = parent.frame(), start, control = nls.control(),
 	        stop(...)
 	      }
 	      structure(list(m = nlsModel(formula, data, start), 
-	         call = list(algorithm = algorithm), 
-	         convInfo = list(isConv = TRUE, finIter = 0, finTol = 0)), 
-	         class = "nls")
+	         call = call,
+	         convInfo = list(isConv = TRUE, finIter = finIter,
+			finTol = NA)), class = "nls")
 	   }
 	} else L$algorithm <- algorithm
 
@@ -28,6 +33,22 @@ nls2 <- function(formula, data = parent.frame(), start, control = nls.control(),
 	else L$start <- as.data.frame(as.list(start))
 
 	if (NROW(L$start) == 1) return(do.call(nls, L))
+
+	if (NROW(L$start) == 2) {
+		rng <- as.data.frame(lapply(start, range))
+		mn <- rng[1,]
+		mx <- rng[2,]
+		# k is number of points in each dimension to take
+		# so that cross product is close to maxiter points.
+		k1 <- pmax(ceiling(sum(mx > mn)), 1)
+		k <- pmax(ceiling(control$maxiter ^ (1/k1)), 1)
+		DF <- as.data.frame(rbind(mn, mx, k))
+		# L$start <- expand.grid(by(DF, 1:NROW(DF), do.call, what = 
+			#function(from, to, len) seq(from, to, length = len)))
+		finIter <- k^k1
+		L$start <- expand.grid(lapply(DF, 
+			function(x) seq(x[1], x[2], length = x[3])))
+	}
 
 	result <- apply(L$start, 1, function(start) {
 		L$start <- start
