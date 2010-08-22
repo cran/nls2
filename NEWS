@@ -1,5 +1,20 @@
 VERSION 0.1-3
 
+o as.lm and as.lm.nls can be used to convert an "nls" object to an 
+  "lm" object which is tangent to the nls object.  Untested.
+
+o as.lm.nls uses proto package hence new dependency
+
+o added algorithm = "random" which samples maxiter rows from start if
+  start is a data frame with more than 2 rows whereas if start is a data
+  frame with exactly 2 rows it will take maxiter random points from the
+  rectangle whose boundary is defined by the rows.
+
+o if nls exits with an error nls2 uses NA as the return value of that nls
+  call instead of stopping with an error
+
+VERSION 0.1-2
+
 o fixed problem with update not working with objects produced by nls2.
 
 o fixed number of iterations and tolerance displayed when using
@@ -7,8 +22,6 @@ o fixed number of iterations and tolerance displayed when using
 
 o if there are exactly two rows in start= then a grid of starting values
   is formed so that there are at least maxiter points on the grid.
-
-VERSION 0.1-2
 
 o start can be an nls object in which case coef(nls) is used.
 
