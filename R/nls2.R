@@ -1,4 +1,5 @@
-nls2 <- function(formula, data = parent.frame(), start, control = nls.control(),
+nls2 <- function(formula, data = parent.frame(), start, weights, 
+	control = nls.control(),
 	algorithm = c("default", "plinear", "port", "brute-force", "grid-search", "random-search"), ...,
 	all = FALSE) { 
 
@@ -17,7 +18,7 @@ nls2 <- function(formula, data = parent.frame(), start, control = nls.control(),
 	if (algorithm == "grid-search") algorithm <- "brute-force"
 	call <- match.call()
 	if (algorithm == "brute-force" || algorithm == "random-search") {
-	   nls <- function(formula, data, start, ...) {
+	   nls <- function(formula, data, start, weights, ...) {
 	      nlsModel <- stats:::nlsModel
 	      environment(nlsModel) <- environment()
 	      #  disable nlsModel gradient error
@@ -26,7 +27,13 @@ nls2 <- function(formula, data = parent.frame(), start, control = nls.control(),
 	        if (list(...)[[1]] == msg) return()
 	        stop(...)
 	      }
-	      structure(list(m = nlsModel(formula, data, start), 
+		  m <- if (missing(weights)) {
+			  nlsModel(formula, data, start)
+		  } else {
+			  wts <- eval(substitute(weights), data, environment(formula))
+			  nlsModel(formula, data, start, wts)
+		  }
+	      structure(list(m = m,
 	         call = call,
 	         convInfo = list(isConv = TRUE, finIter = finIter,
 			finTol = NA)), class = "nls")
