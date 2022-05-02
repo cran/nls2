@@ -1,9 +1,0 @@
-
-o a maximum rather than a minimum of maxiter starting values are 
-  generated - todo
-
-o if start is a data frame with n+1 rows where n is the number of
-  parameters to optimize then Nelder Mead is used first - todo
-
-o add minpack.lm interface - todo
-
