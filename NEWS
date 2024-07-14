@@ -1,4 +1,10 @@
 
+VERSION 0.3-4
+
+o add "CPoptim" algorithm (convex partition)
+
+o fixed "plinear-brute-force" error
+
 VERSION 0.3-3
 
 o fix bug that occurred when using "port"

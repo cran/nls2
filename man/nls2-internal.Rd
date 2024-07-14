@@ -17,10 +17,11 @@
 \alias{summary.nls}
 \alias{vcov.nls}
 \alias{weights.nls}
+\alias{nls.CPoptim}
 
-\title{Internal nls2 Functions}
+\title{Internal \code{nls2} Functions}
 \description{
- Internal nls2 functions
+ Internal \code{nls2} functions
 }
 \details{
 These are internal routines.

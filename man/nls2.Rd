@@ -8,8 +8,8 @@
 \usage{
 nls2(formula, data = parent.frame(), start, control = nls.control(),
 	algorithm = c("default", "plinear", "port", "brute-force", 
-	"grid-search", "random-search", "lhs", 
-	"plinear-brute", "plinear-random", "plinear-lhs"), 
+	"grid-search", "random-search", "lhs", "CPoptim",
+	"plinear-brute-force", "plinear-random", "plinear-lhs"), 
 	trace = FALSE, weights, subset, \dots, all = FALSE)
 }
 \arguments{
@@ -67,7 +67,7 @@ nls2(formula, data = parent.frame(), start, control = nls.control(),
 
   \code{"plinear-brute"} and \code{"plinear-random"} are like
   \code{"brute-force"} and \code{"random-search"} except that the formula
-  is a plinear-style formula and only starting values for the non-linear
+  is a \code{plinear}-style formula and only starting values for the non-linear
   parameters are given.
 
   If algorithm is neither of the above two values then if start has more than
@@ -88,6 +88,20 @@ nls2(formula, data = parent.frame(), start, control = nls.control(),
   If the starting value is an \code{"nls"} object then 
           the \code{coef} of that object will be used as the
           starting value.
+
+  If the \code{algorithm} argument is \code{"CPoptim"} then the convex 
+  partition algorithm from the \code{CPoptim} package
+  is used. In that case \code{start} must be a 2 row data frame with the first 
+  row being the lower bounds and second row the upper bounds and the column
+  names must be the names of the corresponding parameters.  The maximum
+  number of function evaluations (\code{FEmax}) defaults to 5000 times the 
+  number of parameters and the sample size (\code{sampleSize} defaults to 
+  1000.  Other values can be passed via the \code{control} list but normally 
+  the defaults should be adequate.
+
+  Since \code{nls} is used to produce starting values rather than the final 
+  estimates \code{confint} cannot be used on objects produced by \code{nls}.
+
 }
 \seealso{
   \code{\link{nls}}.
@@ -172,6 +186,12 @@ set.seed(123)
 junk <- capture.output(fm0 <- nls2(fo, data = pastured, start = gstart, alg = "plinear-lhs",
    control = nls.control(maxiter = 1000)), type = "message")
 nls2(fo, pastured, start = fm0, alg = "plinear")
+
+## Example 6
+
+# CPoptim example
+nls2(demand ~ a + b * Time, data = BOD, start = 
+   data.frame(a = c(-10, 10), b = c(-10, 10)), alg = "CPoptim")
 
 }
 \keyword{nonlinear}

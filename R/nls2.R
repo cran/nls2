@@ -1,7 +1,11 @@
 nls2 <- function(formula, data = parent.frame(), start, 
 	control = nls.control(),
-	algorithm = c("default", "plinear", "port", "brute-force", "grid-search", "random-search", "lhs", "plinear-brute", "plinear-random", "plinear-lhs"), 
+	algorithm = c("default", "plinear", "port", "brute-force", 
+	  "grid-search", "random-search", "lhs", "CPoptim", 
+	  "plinear-brute-force", "plinear-random", "plinear-lhs"), 
 	trace = FALSE, weights, subset, ..., all = FALSE) { 
+
+	qdata <- substitute(data)
 
 	# if formula is not of class "formula" convert it to "formula" class
 	if (!inherits(formula, "formula")) formula <- as.formula(formula, 
@@ -30,6 +34,11 @@ nls2 <- function(formula, data = parent.frame(), start,
 	L <- append(L, list(...))
 	algorithm <- match.arg(algorithm)
 	if (algorithm == "grid-search") algorithm <- "brute-force"
+	if (algorithm == "CPoptim") {
+		L$data <- qdata
+		L$algorithm <- NULL
+		return(do.call("nls.CPoptim", L))
+	}
 	call <- match.call()
 	if (algorithm %in% c("brute-force", "random-search", "lhs",
 	  "plinear-brute-force", "plinear-random", "plinear-lhs")) {
@@ -61,6 +70,7 @@ nls2 <- function(formula, data = parent.frame(), start,
 
 	# here nls may be nls, nlsModel or nlsModel.plinear 
 	#  depending on algorithm=
+	# nlsModel and nlsModel.plinear give the model evaluated at start
 	if (missing(start)) return(do.call(nls, L))
 	else L$start <- as.data.frame(as.list(start))
 
